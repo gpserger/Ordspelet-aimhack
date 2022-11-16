@@ -127,7 +127,7 @@ def play():
             definition = definitions[wordtodefine]
             print(f"definition found in dict: {definition}")
             for i, word in enumerate(options):
-                if similar(word, definition) > 0.8:
+                if similar(word, definition) > 0.7:
                     pressButton(i)
                     break
             else:
