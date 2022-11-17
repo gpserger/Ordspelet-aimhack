@@ -90,6 +90,8 @@ def playAgain():
     print("playing again")
     time.sleep(2)
     tapPlayButton()
+    time.sleep(0.01)
+    device.shell("input tap 550 2150")
     time.sleep(1)
     tapPlayButton()
     time.sleep(1)
@@ -123,7 +125,11 @@ def play():
         print("######################")
         wordtodefine, options = getCurrentWordsOnScreen()
         print(f"defining word: " + wordtodefine)
-        if wordtodefine in definitions:
+
+        if wordtodefine in ['ResulTal\n', 'Statistisk\n','']:
+            playAgain()
+        
+        elif wordtodefine in definitions:
             definition = definitions[wordtodefine]
             print(f"definition found in dict: {definition}")
             for i, word in enumerate(options):
