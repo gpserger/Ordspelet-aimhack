@@ -126,7 +126,7 @@ def play():
         wordtodefine, options = getCurrentWordsOnScreen()
         print(f"defining word: " + wordtodefine)
 
-        if wordtodefine in ['ResulTal\n', 'Statistisk\n','']:
+        if wordtodefine in ['ResulTal\n', 'Statistik\n','']:
             playAgain()
         
         elif wordtodefine in definitions:
