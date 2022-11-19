@@ -150,7 +150,7 @@ def play():
                     if correct != i:
                         print("WRONG ANSWER SAVED")
                         print(f"correct answer was " + options[correct])
-                        definitions[wordtodefine] = [options[correct], freq]
+                        definitions[wordtodefine] = [options[correct], 1]
                         time.sleep(1)
                     break
             else:
