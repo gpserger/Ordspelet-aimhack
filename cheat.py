@@ -39,6 +39,9 @@ def saveWordDict(words):
     with open('dict.json', 'w') as f:
         f.write(json.dumps(words))
 
+def formatString(s):
+    return s.strip().replace("\n", " ").lower()
+
 def getWordDict():
     try:
         with open('dict.json', 'r') as f:
@@ -56,12 +59,13 @@ def getCurrentWordsOnScreen():
     img = Image.open("screen.png")
     # word to define
     wordtodefine = pytesseract.image_to_string(img.crop((0, 180, 1080, 428)))
+    wordtodefine = formatString(wordtodefine)
 
     # definition options
     options = []
     for i in range(len(words)):
         definition = pytesseract.image_to_string(img.crop((words[i][0], words[i][1], words[i][0]+boxsize, words[i][1]+boxsize)))
-        definition = definition
+        definition = formatString(definition)
         options.append(definition)
 
     return [wordtodefine, options]
@@ -103,7 +107,7 @@ def guess(wordtodefine, definitions, options):
     time.sleep(0.05)
     ans = getCorrectAnswer()
     print(f"correct answer was " + options[ans])
-    definitions[wordtodefine] = options[ans]
+    definitions[wordtodefine] = [options[ans], 1]
     saveWordDict(definitions)
     print(f"Now I know {len(definitions)} words")
     if(ans != 0):
@@ -121,25 +125,38 @@ def play():
 
     # Game loop
     tapPlayButton()
+    time.sleep(1)
+    counter = 0
     while True:
+        counter += 1
+        if counter % 10 == 0:
+            saveWordDict(definitions)
         print("######################")
         wordtodefine, options = getCurrentWordsOnScreen()
         print(f"defining word: " + wordtodefine)
 
-        if wordtodefine in ['ResulTal\n', 'Statistik\n','']:
+        if wordtodefine in ['resultal', 'statistik','']:
             playAgain()
         
         elif wordtodefine in definitions:
-            definition = definitions[wordtodefine]
+            freq = definitions[wordtodefine][1] + 1
+            definition = definitions[wordtodefine][0]
+            definitions[wordtodefine] = [definition, freq]
             print(f"definition found in dict: {definition}")
             for i, word in enumerate(options):
                 if similar(word, definition) > 0.7:
                     pressButton(i)
+                    correct = getCorrectAnswer()
+                    if correct != i:
+                        print("WRONG ANSWER SAVED")
+                        print(f"correct answer was " + options[correct])
+                        definitions[wordtodefine] = [options[correct], freq]
+                        time.sleep(1)
                     break
             else:
                 print("saved definition doesn't match any of the options")
                 print(options)
-                print(definitions[wordtodefine])
+                print(definitions[wordtodefine][1])
                 guess(wordtodefine, definitions, options)
             time.sleep(1)
         else:
