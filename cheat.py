@@ -168,37 +168,37 @@ def play():
             freq = definitions[wordtodefine][1] + 1
             definition = definitions[wordtodefine][0]
             definitions[wordtodefine] = [definition, freq]
-            for i, word in enumerate(options):
-                if similar(word, definition) > 0.7:
-                    pressButton(i)
-                    time.sleep(0.03)
-                    correct = getCorrectAnswer()
-                    if correct != i:
-                        print(f"defining word {[wordtodefine]}")
-                        print("WRONG ANSWER SAVED")
-                        print(f"saved definition was {[definition]}")
-                        print(f"answer pressed was {[options[i]]}")
-                        print(f"correct answer was {[options[correct]]}")
-                        definitions[wordtodefine] = [options[correct], 1]
-                        
-                        print(f"streak of {streak} broken")
-                        if "saved answer wrong" not in streakLog:
-                            streakLog["saved answer wrong"] = []
-                        streakLog["saved answer wrong"].append([
-                            f"defining word: {wordtodefine}, {[definition]}, correct was answer: {[options[correct]]}",
-                            streak
-                        ])
-                        saveBrokenStreakLog(streakLog)
-                        streak = 0
-                        time.sleep(1)
-                    else:
-                        streak += 1
-                    break
+            similarity = [similar(definition, option) for option in options]
+            if max(similarity) > 0.7:
+                highest = similarity.index(max(similarity))
+                pressButton(highest)
+                time.sleep(0.03)
+                correct = getCorrectAnswer()
+                if correct != highest:
+                    print(f"defining word {[wordtodefine]}")
+                    print("WRONG ANSWER SAVED")
+                    print(f"saved definition was {[definition]}")
+                    print(f"answer pressed was {[options[highest]]}")
+                    print(f"correct answer was {[options[correct]]}")
+                    definitions[wordtodefine] = [options[correct], 1]
+                    
+                    print(f"streak of {streak} broken")
+                    if "saved answer wrong" not in streakLog:
+                        streakLog["saved answer wrong"] = []
+                    streakLog["saved answer wrong"].append([
+                        f"defining word: {wordtodefine}, {[definition]}, correct was answer: {[options[correct]]}",
+                        streak
+                    ])
+                    saveBrokenStreakLog(streakLog)
+                    streak = 0
+                    time.sleep(1)
+                else:
+                    streak += 1
+                break
             else:
                 print(f"defining word: {wordtodefine}")
-                print("saved definition doesn't match any of the options")
-                print(options)
-                print(definitions[wordtodefine])
+                print(f"saved definition {definitions[wordtodefine]} doesn't match any of the options")
+                print([(option, similar(option,definition)) for option in options])
                 saveddefinition = definitions[wordtodefine]
                 if guess(wordtodefine, definitions, options):
                     streak += 1
