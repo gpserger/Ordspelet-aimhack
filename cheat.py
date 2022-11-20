@@ -146,6 +146,7 @@ def play():
             for i, word in enumerate(options):
                 if similar(word, definition) > 0.7:
                     pressButton(i)
+                    time.sleep(0.05)
                     correct = getCorrectAnswer()
                     if correct != i:
                         print("WRONG ANSWER SAVED")
