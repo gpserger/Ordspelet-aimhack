@@ -73,9 +73,9 @@ def getCurrentWordsOnScreen():
 def getCorrectAnswer():
     # return index of the correct button
     img = device.screencap()
-    with open("screen.png", "wb") as f:
+    with open("check.png", "wb") as f:
         f.write(img)
-    img = Image.open("screen.png")
+    img = Image.open("check.png")
     for i in range(len(words)):
         box = img.crop((words[i][0]+200, words[i][1]+20, words[i][0]+boxsize-200, words[i][1]+boxsize-400))
         box.save(f"box{i}.png")
@@ -112,58 +112,121 @@ def guess(wordtodefine, definitions, options):
     if(ans != 0):
         # unless we happened to guess the right answer, play again
         playAgain()
+        return False
     else:
         print("We guessed correctly, continuing")
         time.sleep(0.5)
+        return True
 
-    
+
+def getBrokenStreakLog():
+    try:
+        with open('brokenStreakLog.json', 'r') as f:
+            return json.loads(f.read())
+    except:
+        return {}
+
+
+def saveBrokenStreakLog(log):
+    with open("brokenStreakLog.json", "w") as f:
+        f.write(json.dumps(log))
+
 
 def play():
-
+    streakLog = getBrokenStreakLog()
     definitions = getWordDict()
 
     # Game loop
     tapPlayButton()
     time.sleep(1)
     counter = 0
+    streak = 0
     while True:
         counter += 1
         if counter % 10 == 0:
             saveWordDict(definitions)
-        print("######################")
         wordtodefine, options = getCurrentWordsOnScreen()
-        print(f"defining word: " + wordtodefine)
 
-        if wordtodefine in ['resultal', 'statistik','']:
+        if wordtodefine in ['resultal', 'statistik']:
+            streak = 0
             playAgain()
+        
+        elif wordtodefine == '':
+            print(f"streak of {streak} broken")
+            if "empty screen" not in streakLog:
+                streakLog["empty screen"] = []
+            streakLog["empty screen"].append([
+                streak
+            ])
+            saveBrokenStreakLog(streakLog)
+            streak = 0
+            time.sleep(2)
+            playAgain()
+            continue
         
         elif wordtodefine in definitions:
             freq = definitions[wordtodefine][1] + 1
             definition = definitions[wordtodefine][0]
             definitions[wordtodefine] = [definition, freq]
-            print(f"definition found in dict: {[definition]}")
             for i, word in enumerate(options):
                 if similar(word, definition) > 0.7:
                     pressButton(i)
                     time.sleep(0.03)
                     correct = getCorrectAnswer()
                     if correct != i:
+                        print(f"defining word {[wordtodefine]}")
                         print("WRONG ANSWER SAVED")
+                        print(f"saved definition was {[definition]}")
+                        print(f"answer pressed was {[options[i]]}")
                         print(f"correct answer was {[options[correct]]}")
                         definitions[wordtodefine] = [options[correct], 1]
+                        
+                        print(f"streak of {streak} broken")
+                        if "saved answer wrong" not in streakLog:
+                            streakLog["saved answer wrong"] = []
+                        streakLog["saved answer wrong"].append([
+                            f"defining word: {wordtodefine}, {[definition]}, correct was answer: {[options[correct]]}",
+                            streak
+                        ])
+                        saveBrokenStreakLog(streakLog)
+                        streak = 0
                         time.sleep(1)
+                    else:
+                        streak += 1
                     break
             else:
+                print(f"defining word: {wordtodefine}")
                 print("saved definition doesn't match any of the options")
                 print(options)
-                print(definitions[wordtodefine][1])
-                guess(wordtodefine, definitions, options)
-            time.sleep(0.65)
+                print(definitions[wordtodefine])
+                saveddefinition = definitions[wordtodefine]
+                if guess(wordtodefine, definitions, options):
+                    streak += 1
+                else:
+                    if "no match" not in streakLog:
+                        streakLog["no match"] = []
+                    streakLog["no match"].append([
+                        f"defining word: {wordtodefine}, {options} does not match definition {saveddefinition}",
+                        streak
+                    ])
+                    saveBrokenStreakLog(streakLog)
+                    print(f"streak of {streak} broken")
+                    streak = 0
+            time.sleep(0.61)
         else:
             # new word 
             print(f"word not found in dictionary")
-            guess(wordtodefine, definitions, options)
+            if guess(wordtodefine, definitions, options):
+                streak += 1
+            else:
+                if "new word" not in streakLog:
+                    streakLog["new word"] = []
+                streakLog["new word"].append([
+                    f"new word: {wordtodefine}",
+                    streak
+                ])
+                saveBrokenStreakLog(streakLog)
+                print(f"streak of {streak} broken")
+                streak = 0
 
-            
-        
 play()
