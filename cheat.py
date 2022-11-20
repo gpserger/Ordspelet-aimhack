@@ -147,6 +147,7 @@ def play():
             saveWordDict(definitions)
         wordtodefine, options = getCurrentWordsOnScreen()
 
+        print(f"streak: {streak}", end="\r")
         if wordtodefine in ['resultal', 'statistik']:
             streak = 0
             playAgain()
