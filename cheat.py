@@ -102,7 +102,6 @@ def playAgain():
 
 def guess(wordtodefine, definitions, options):
     # press random word, then save word and definition
-    print(f"word not found in dictionary")
     pressButton(0)
     time.sleep(0.05)
     ans = getCorrectAnswer()
@@ -142,15 +141,15 @@ def play():
             freq = definitions[wordtodefine][1] + 1
             definition = definitions[wordtodefine][0]
             definitions[wordtodefine] = [definition, freq]
-            print(f"definition found in dict: {definition}")
+            print(f"definition found in dict: {[definition]}")
             for i, word in enumerate(options):
                 if similar(word, definition) > 0.7:
                     pressButton(i)
-                    time.sleep(0.05)
+                    time.sleep(0.03)
                     correct = getCorrectAnswer()
                     if correct != i:
                         print("WRONG ANSWER SAVED")
-                        print(f"correct answer was " + options[correct])
+                        print(f"correct answer was {[options[correct]]}")
                         definitions[wordtodefine] = [options[correct], 1]
                         time.sleep(1)
                     break
@@ -159,9 +158,10 @@ def play():
                 print(options)
                 print(definitions[wordtodefine][1])
                 guess(wordtodefine, definitions, options)
-            time.sleep(1)
+            time.sleep(0.65)
         else:
             # new word 
+            print(f"word not found in dictionary")
             guess(wordtodefine, definitions, options)
 
             
