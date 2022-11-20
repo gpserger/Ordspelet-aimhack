@@ -178,8 +178,7 @@ def play():
                     print(f"defining word {[wordtodefine]}")
                     print("WRONG ANSWER SAVED")
                     print(f"saved definition was {[definition]}")
-                    print(f"answer pressed was {[options[highest]]}")
-                    print(f"correct answer was {[options[correct]]}")
+                    print(f"answer pressed was {[options[highest]]} but should have been {[options[correct]]}")
                     definitions[wordtodefine] = [options[correct], 1]
                     
                     print(f"streak of {streak} broken")
@@ -194,7 +193,6 @@ def play():
                     time.sleep(1)
                 else:
                     streak += 1
-                break
             else:
                 print(f"defining word: {wordtodefine}")
                 print(f"saved definition {definitions[wordtodefine]} doesn't match any of the options")
@@ -206,7 +204,7 @@ def play():
                     if "no match" not in streakLog:
                         streakLog["no match"] = []
                     streakLog["no match"].append([
-                        f"defining word: {wordtodefine}, {options} does not match definition {saveddefinition}",
+                        f"defining word: {wordtodefine}, {[(option, similar(option,definition)) for option in options]} does not match definition {saveddefinition}",
                         streak
                     ])
                     saveBrokenStreakLog(streakLog)
@@ -222,7 +220,7 @@ def play():
                 if "new word" not in streakLog:
                     streakLog["new word"] = []
                 streakLog["new word"].append([
-                    f"new word: {wordtodefine}",
+                    f"{wordtodefine}",
                     streak
                 ])
                 saveBrokenStreakLog(streakLog)
